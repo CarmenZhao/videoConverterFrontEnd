@@ -8,7 +8,7 @@ import {
 } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 
 import hero from "./img/hero.png";
@@ -44,7 +44,7 @@ function App() {
     var spark = new SparkMD5();
     spark.append(videoURL);
     var hash = spark.end();
-    console.log(hash);  
+    console.log(hash);
     if (videoURL !== null && convertSize !== "Choose a resolution...") {
       setError(null);
       setLoading(true);
@@ -80,14 +80,13 @@ function App() {
 
   // Upload with file
   const changeHandler = (event) => {
-    console.log(event.target.files)
+    console.log(event.target.files);
     setFile(event.target.files[0]);
   };
 
-
   const getFileMD5 = () => {
-  return new Promise((resolve,reject)=>{
-    console.log(file)
+    return new Promise((resolve, reject) => {
+      console.log(file);
       var blobSlice =
           File.prototype.slice ||
           File.prototype.mozSlice ||
@@ -97,17 +96,17 @@ function App() {
         currentChunk = 0,
         spark = new SparkMD5.ArrayBuffer(),
         fileReader = new FileReader();
-       fileReader.onload = function(e) {
+      fileReader.onload = function (e) {
         console.log("read chunk nr", currentChunk + 1, "of", chunks);
         spark.append(e.target.result); // Append array buffer
         currentChunk++;
         if (currentChunk < chunks) {
           loadNext();
         } else {
-          resolve(spark.end())
+          resolve(spark.end());
         }
       };
-      fileReader.onerror = function() {
+      fileReader.onerror = function () {
         console.warn("oops, something went wrong.");
       };
       function loadNext() {
@@ -116,13 +115,13 @@ function App() {
         fileReader.readAsArrayBuffer(blobSlice.call(file, start, end));
       }
       loadNext();
-  })     
+    });
   };
 
   const handleSubmission = async (event) => {
-    event.preventDefault()
-    const hash=await getFileMD5()
-    console.log("hash: " + hash)
+    event.preventDefault();
+    const hash = await getFileMD5();
+    console.log("hash: " + hash);
     try {
       setLoading(true);
       setError(null);
@@ -134,7 +133,7 @@ function App() {
           size: convertSize,
           filetype: file.type,
         },
-      }).then(function(res) {
+      }).then(function (res) {
         console.log(res);
         if (res.status === 200) {
           if (res.data.hasOwnProperty("PresignedURL")) {
@@ -144,7 +143,7 @@ function App() {
                   "Content-Type": file.type,
                 },
               })
-              .then(function(res) {
+              .then(function (res) {
                 if (res.status === 200) {
                   axios
                     .get(`${baseURL}/video/convertNewUpload`, {
@@ -153,7 +152,7 @@ function App() {
                         size: convertSize,
                       },
                     })
-                    .then(function(result) {
+                    .then(function (result) {
                       console.log("result", result);
                       if (result.status === 200) {
                         // upload new video
@@ -191,8 +190,8 @@ function App() {
         <h1 class="py-5">
           Convert Video <br></br>To Any Size!
         </h1>
-        
-        <img src={hero} height="280px"></img>
+
+        <img src={hero} height="280px" alt="img"></img>
         <p class="label mb-5">
           <BsCheckCircleFill className="icon-padding" />
           Unlimited download
@@ -280,15 +279,14 @@ function App() {
               if (
                 file === null ||
                 file === undefined ||
-            
-                convertSize === "Choose a resolution..." 
+                convertSize === "Choose a resolution..."
               ) {
                 setError(
                   "Please ensure that you have uploaded a file or selected a resolution"
                 );
               } else {
                 //getFileMD5(event);
-                handleSubmission(event)
+                handleSubmission(event);
               }
             }}
             variant="warning"
